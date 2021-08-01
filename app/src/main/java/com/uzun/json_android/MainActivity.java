@@ -18,13 +18,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    //private static final String JSON_URL = "http://m1.maxfad.ru/api/users.json";
-    private static final String JSON_URL = "https://jsonplaceholder.typicode.com/users";// UTF-8
+
+    private static final String JSON_URL = "http://m1.maxfad.ru/api/users.json";// UTF-8
     ListView listView;
 
     @Override
@@ -37,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void  loadJSONFromURL(String url){
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setVisibility(ListView.VISIBLE); // Видиемый ProgressBar
+        progressBar.setVisibility(ListView.VISIBLE);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener< String>(){
                     @Override
@@ -45,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                         progressBar.setVisibility(View.INVISIBLE);
                         try {
                             JSONObject object = new JSONObject(EncodingToUTF8(response));
-                            JSONArray jsonArray = object.getJSONArray("name"); //???
+                            JSONArray jsonArray = object.getJSONArray("users");
                             ArrayList< JSONObject> listItems = getArrayListFromJSONArray(jsonArray);
                             ListAdapter adapter = new ListViewAdapter(getApplicationContext(),R.layout.row,R.id.textViewName,listItems);
                             listView.setAdapter(adapter);
