@@ -13,17 +13,17 @@
         android:padding="5dp">
 
         <TextView
-            android:id="@+id/name"
+            android:id="@+id/textViewName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/name"
             android:textSize="30sp"/>
 
         <TextView
-            android:id="@+id/username"
+            android:id="@+id/textViewEmail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/username"
+            android:text="@string/email"
             android:textSize="30sp"/>
     </LinearLayout>
 

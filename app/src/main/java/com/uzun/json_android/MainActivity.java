@@ -1,62 +1,93 @@
 package com.uzun.json_android;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Bundle;
-import android.widget.LinearLayout;
+import android.view.View;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.IOException;
-import java.io.InputStream;
+
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView recyclerView;
-    ArrayList< String > name = new ArrayList<>();
-    ArrayList< String > username = new ArrayList<>();
+    private static final String JSON_URL = "http://m1.maxfad.ru/api/users.json";// UTF-8
+    ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        recyclerView = findViewById(R.id.recyclerView);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(linearLayoutManager);
-
-        //Полчаем JSON file
-        try {
-            JSONObject jsonObject = new JSONObject(JsonDataFromAsset("users.json"));
-            JSONArray jsonArray = jsonObject.getJSONArray("users");
-            for (int i=0;i< jsonArray.length();i++){
-                JSONObject userData=jsonArray.getJSONObject(i);
-                name.add(userData.getString("name"));
-                username.add(userData.getString("username"));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        HelperAdapter helperAdapter = new HelperAdapter(name,username,MainActivity.this);
-        recyclerView.setAdapter(helperAdapter);
+        listView = (ListView) findViewById(R.id.listView);
+        loadJSONFromURL(JSON_URL);
     }
-    // возвращаем данные из json
-    private String JsonDataFromAsset(String fileName) { // передаем имя JSON файла
-        String json = null;
+
+    private void  loadJSONFromURL(String url){
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(ListView.VISIBLE); // Видиемый ProgressBar
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener< String>(){
+                    @Override
+                    public void onResponse(String response) {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        try {
+                            JSONObject object = new JSONObject(EncodingToUTF8(response));
+                            JSONArray jsonArray = object.getJSONArray("users");
+                            ArrayList< JSONObject> listItems = getArrayListFromJSONArray(jsonArray);
+                            ListAdapter adapter = new ListViewAdapter(getApplicationContext(),R.layout.row,R.id.textViewName,listItems);
+                            listView.setAdapter(adapter);
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(),error.getMessage(),Toast.LENGTH_SHORT).show();
+                    }
+                });
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(stringRequest);
+    }
+
+    private ArrayList< JSONObject> getArrayListFromJSONArray(JSONArray jsonArray){
+        ArrayList< JSONObject> aList = new ArrayList< JSONObject>();
         try {
-            InputStream inputStream = getAssets().open(fileName);
-            int sizeOfFile = inputStream.available();
-            byte[] bufferData = new byte[sizeOfFile];
-            inputStream.read(bufferData);
-            inputStream.close();
-            json = new String(bufferData, "UTF-8");
-        }catch (IOException e){
+            if(jsonArray!= null){
+                for(int i = 0; i< jsonArray.length();i++){
+                    aList.add(jsonArray.getJSONObject(i));
+                }
+            }
+        }catch (JSONException js){
+            js.printStackTrace();
+        }
+        return aList;
+    }
+
+    public  static  String EncodingToUTF8(String response){
+        try {
+            byte[] code = response.toString().getBytes("ISO-8859-1");
+            response = new String(code, "UTF-8");
+        }catch (UnsupportedEncodingException e){
             e.printStackTrace();
             return null;
         }
-        return json;
+        return response;
     }
+
+
 }

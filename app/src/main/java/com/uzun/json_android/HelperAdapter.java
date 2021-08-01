@@ -55,8 +55,8 @@ public class HelperAdapter extends RecyclerView.Adapter< HelperAdapter.MyViewCla
         TextView username;
         public MyViewClass(@NonNull View itemView) {
             super(itemView);
-            name = itemView.findViewById(R.id.name);
-            username = itemView.findViewById(R.id.username);
+            name = itemView.findViewById(R.id.textViewName);
+            username = itemView.findViewById(R.id.textViewEmail);
         }
     }
 }
