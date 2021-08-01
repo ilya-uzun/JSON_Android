@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">JSON_android</string>
+    <string name="app_name">jsonplaceholder android</string>
     <string name="username">Username</string>
     <string name="email">email</string>
     <string name="name">Name</string>
